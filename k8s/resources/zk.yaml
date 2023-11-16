@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zk
+  labels:
+    app: zk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: zk
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: zk
+        app: zk
+    spec:
+      containers:
+      - image: zookeeper
+        imagePullPolicy: Always
+        livenessProbe:
+          exec:
+            command: ["bash", "-c", "echo srvr | timeout 10 nc -w 2 localhost 2181 | grep Zookeeper"]
+          initialDelaySeconds: 30
+          periodSeconds: 300
+          successThreshold: 1
+          timeoutSeconds: 30
+          failureThreshold: 10
+        readinessProbe:
+          exec:
+            command: ["bash", "-c", "echo srvr | timeout 10 nc -w 2 localhost 2181 | grep Zookeeper"]
+          initialDelaySeconds: 30
+          periodSeconds: 60
+          successThreshold: 1
+          timeoutSeconds: 30
+          failureThreshold: 10
+        envFrom:
+          - secretRef:
+              name: env
+        name: zk
+        ports:
+        - containerPort: 2181
+          protocol: TCP
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      imagePullSecrets:
+        - name: regcred
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: zk
+    app: zk
+  name: zk
+spec:
+  type: NodePort
+  ports:
+    - name: port1
+      port: 2181
+      targetPort: 2181
+      nodePort: 2181
+  selector:
+    app: zk
+  ipFamilyPolicy: RequireDualStack
+  ipFamilies:
+    - IPv4
+    - IPv6

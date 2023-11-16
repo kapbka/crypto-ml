@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: postgres
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: postgres
+        app: postgres
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
+        - name: dshm
+          emptyDir:
+            medium: Memory
+      containers:
+      - image: docker.clrn.dev/postgres:latest
+        imagePullPolicy: Always
+        volumeMounts:
+          - name: data
+            mountPath: /var/lib/postgresql/data
+          - mountPath: /dev/shm
+            name: dshm
+        livenessProbe:
+          failureThreshold: 3
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command: ["pg_isready"]
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        envFrom:
+          - secretRef:
+              name: env
+        name: postgres
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      imagePullSecrets:
+        - name: regcred
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: postgres
+    app: postgres
+  name: postgres
+spec:
+  type: NodePort
+  ports:
+    - name: port1
+      port: 5432
+      targetPort: 5432
+      nodePort: 5432
+  selector:
+    app: postgres
+  ipFamilyPolicy: RequireDualStack
+  ipFamilies:
+    - IPv4
+    - IPv6

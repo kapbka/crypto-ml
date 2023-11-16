@@ -1,0 +1,433 @@
+version: '3.4'
+services:
+  s3:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    entrypoint: ["s3cmd", "--host", "https://storage.googleapis.com", "--host-bucket", ""]
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  zk:
+    image: zookeeper
+    restart: always
+    ports:
+      - ${ZK_PORTS}
+  postgres:
+    image: docker.clrn.dev/postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_PORTS}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    shm_size: 2g
+    build:
+      context: db
+    healthcheck:
+      test: psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c "select 1;"
+      interval: 1s
+      timeout: 5s
+      retries: 30
+  python-base:
+    image: docker.clrn.dev/python-base:${REQUIREMENTS_HASH}
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+  python-base-gpu:
+    image: docker.clrn.dev/python-base-gpu:${REQUIREMENTS_HASH}
+    build:
+      context: .
+      dockerfile: Dockerfile.base-gpu
+  python-base-tests:
+    image: docker.clrn.dev/python-base-tests:${REQUIREMENTS_HASH}
+    build:
+      context: .
+      dockerfile: Dockerfile.base-tests
+  waiter:
+    image: docker.clrn.dev/waiter:latest
+    depends_on:
+      - python-base
+    build:
+      context: .
+      dockerfile: Dockerfile.waiter
+      args:
+        BASE: docker.clrn.dev/python-base:${REQUIREMENTS_HASH}
+  crypto-ml:
+    image: docker.clrn.dev/crypto-ml:latest
+    depends_on:
+      - python-base
+    build:
+      context: .
+      args:
+        BASE: docker.clrn.dev/python-base:${REQUIREMENTS_HASH}
+  crypto-ml-tests:
+    image: docker.clrn.dev/crypto-ml-tests:latest
+    depends_on:
+      - python-base-tests
+    build:
+      context: .
+      args:
+        BASE: docker.clrn.dev/python-base-tests:${REQUIREMENTS_HASH}
+  crypto-ml-coverage:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    depends_on:
+      - python-base-tests
+    build:
+      context: .
+      dockerfile: Dockerfile.coverage
+      args:
+        BASE: docker.clrn.dev/crypto-ml-tests:latest
+  crypto-ml-gpu:
+    image: docker.clrn.dev/crypto-ml-gpu:latest
+    depends_on:
+      - python-base-gpu
+    build:
+      context: .
+      args:
+        BASE: docker.clrn.dev/python-base-gpu:${REQUIREMENTS_HASH}
+  version-import:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    command:
+      - /src/db/tools/version.py
+      - --version
+      - '5'
+      - --name
+      - OCO orders
+      - --comment
+      - OCO orders with fixed price
+    depends_on:
+      db-deploy:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    working_dir: /working-dir
+    volumes:
+      - cloud-data:/src/data
+      - working-dir:/working-dir
+  individuals-import:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    command: ["/src/db/tools/individuals.py", "--folder", "data/cloud/checkpoints"]
+    depends_on:
+      db-deploy:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    working_dir: /working-dir
+    volumes:
+      - cloud-data:/src/data
+      - working-dir:/working-dir
+  local-evaluator:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    command: ["/src/tools/local_eval.py"]
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      db-deploy:
+        condition: service_completed_successfully
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  db-deploy:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    command: ["/src/db/tools/deploy.py", "/src"]
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  dashboards-deploy:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    command: [ "/src/grafana/tools/deploy.py", "/src" ]
+    environment:
+      GRAFANA_TOKEN: ${GRAFANA_TOKEN}
+    depends_on:
+      db-deploy:
+        condition: service_healthy
+  psql:
+    image: postgres
+    entrypoint: ["psql", "--host", "${POSTGRES_HOST}", "--dbname", "${POSTGRES_DB}"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - cloud-data:/src/data
+      - ./:/mount
+    user: postgres
+  db-dump:
+    image: postgres
+    entrypoint: ["pg_dump", "--host", "${POSTGRES_HOST}", "--dbname", "${POSTGRES_DB}", "-T", "public.prediction"]
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    user: postgres
+  unit-tests:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    command: ["-m", "pytest", "/src/tests/drivers/"]
+    working_dir: /working-dir
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      ZK_HOST: ${ZK_HOST}
+      BINANCE_API_KEY: ${BINANCE_API_KEY}
+      BINANCE_SECRET_KEY: ${BINANCE_SECRET_KEY}
+      BINANCE_TESTNET_ENABLED: ${BINANCE_TESTNET_ENABLED}
+      TELEGRAM_NOTIFIER_BOT_ID: ${TELEGRAM_NOTIFIER_BOT_ID}
+      TELEGRAM_STATUS_BOT_ID: ${TELEGRAM_STATUS_BOT_ID}
+    depends_on:
+      db-deploy:
+        condition: service_completed_successfully
+      zk:
+        condition: service_started
+    volumes:
+      - working-dir:/working-dir
+  coverage:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    entrypoint: ["bash", "-c"]
+    command: ["coverage combine --keep > /dev/null && coverage xml --omit='/src/db/alembic/versions/*,/src/tests/drivers/*' -i -o - -q"]
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  price-worker:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    restart: always
+    command: ["/src/workers/price.py", "--start-date", "${BOT_START_TIME}"]
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      ZK_HOST: ${ZK_HOST}
+      BINANCE_API_KEY: ${BINANCE_PROD_API_KEY}
+      BINANCE_SECRET_KEY: ${BINANCE_PROD_SECRET_KEY}
+      BINANCE_TESTNET_ENABLED: 0
+    depends_on:
+      db-deploy:
+        condition: service_completed_successfully
+      zk:
+        condition: service_started
+    healthcheck:
+      test: grep -m 1 'Instance is ready' /tmp/price-worker.log
+      interval: 1s
+      timeout: 1s
+      retries: 60
+      start_period: 120s
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  ann-worker:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    restart: always
+    command: ["/src/workers/ann.py"]
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      db-deploy:
+        condition: service_completed_successfully
+      price-worker:
+        condition: service_healthy
+    healthcheck:
+      test: grep -m 1 'Instance is ready' /tmp/ann-worker.log
+      interval: 1s
+      timeout: 1s
+      retries: 60
+      start_period: 60s
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  deals-worker:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    restart: always
+    command: ["/src/workers/deals.py"]
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      db-deploy:
+        condition: service_completed_successfully
+      price-worker:
+        condition: service_healthy
+#      ann-worker:
+#        condition: service_healthy
+    healthcheck:
+      test: grep -m 1 'Instance is ready' /tmp/deals-worker.log
+      interval: 1s
+      timeout: 1s
+      retries: 60
+      start_period: 120s
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  trader:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    restart: always
+    command: ["/src/workers/trader.py", "-v", "DEBUG"]
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      BINANCE_API_KEY: ${BINANCE_API_KEY}
+      BINANCE_SECRET_KEY: ${BINANCE_SECRET_KEY}
+      BINANCE_TESTNET_ENABLED: ${BINANCE_TESTNET_ENABLED}
+      TELEGRAM_NOTIFIER_BOT_ID: ${TELEGRAM_NOTIFIER_BOT_ID}
+    depends_on:
+      deals-worker:
+        condition: service_healthy
+    healthcheck:
+      test: grep -m 1 'Instance is ready' /tmp/trader.log
+      interval: 1s
+      timeout: 1s
+      retries: 60
+      start_period: 180s
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  process-portfolio:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    command: ["/src/jobs/process_portfolio.py"]
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      db-deploy:
+        condition: service_completed_successfully
+      deals-worker:
+        condition: service_healthy
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  rotate-portfolio:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    command: ["/src/jobs/rotate_portfolio.py"]
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      process-portfolio:
+        condition: service_completed_successfully
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  running-sum:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    command: ["/src/jobs/running_sum.py"]
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      process-portfolio:
+        condition: service_completed_successfully
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  trainer:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    restart: always
+    command:
+      - /src/tools/trainer.py
+      - --currency
+      - btc
+      - --cells
+      - '512'
+      - --epoch
+      - '100'
+      - --save-profit
+      - '0.3'
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      price-worker:
+        condition: service_healthy
+    healthcheck:
+      test: grep -m 1 'Instance is ready' /tmp/trainer.log
+      interval: 1s
+      timeout: 1s
+      retries: 60
+      start_period: 60s
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+      - cloud-data:/src/data
+  status-bot:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    restart: always
+    command: ["/src/bots/status.py"]
+    environment:
+      BINANCE_API_KEY: ${BINANCE_API_KEY}
+      BINANCE_SECRET_KEY: ${BINANCE_SECRET_KEY}
+      BINANCE_TESTNET_ENABLED: ${BINANCE_TESTNET_ENABLED}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TELEGRAM_STATUS_BOT_ID: ${TELEGRAM_STATUS_BOT_ID}
+      GRAFANA_URL: ${GRAFANA_URL}
+    depends_on:
+      db-deploy:
+        condition: service_started
+    healthcheck:
+      test: grep -m 1 'Instance is ready' /tmp/status-bot.log
+      interval: 1s
+      timeout: 1s
+      retries: 60
+      start_period: 60s
+    working_dir: /working-dir
+    volumes:
+      - working-dir:/working-dir
+  all-ready:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    entrypoint: ["bash", "-c"]
+    command: ["echo startup completed"]
+    depends_on:
+      db-deploy:
+        condition: service_completed_successfully
+      price-worker:
+        condition: service_healthy
+      deals-worker:
+        condition: service_healthy
+      running-sum:
+        condition: service_completed_successfully
+      trader:
+        condition: service_healthy
+      status-bot:
+        condition: service_healthy
+  generate-portfolio:
+    image: docker.clrn.dev/crypto-ml-coverage:latest
+    command:
+      - /src/tools/portfolio.py
+      - --size
+      - '2'
+      - --graphs
+      - --min-run-sum-percent
+      - '-100'
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      deals-worker:
+        condition: service_healthy
+volumes:
+  trader-data: null
+  pgdata: null
+  cloud-data: null
+  working-dir: null

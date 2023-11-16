@@ -1,0 +1,9 @@
+FROM tensorflow/tensorflow:latest-gpu
+RUN apt update && apt install -y python3.8-dev python3-pip
+RUN python3.8 -m pip install pip
+RUN ln -fs /usr/bin/python3.8 /usr/local/bin/python
+RUN find / -name pip*
+RUN ln -fs /usr/local/bin/pip3.8 /usr/local/bin/pip
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt

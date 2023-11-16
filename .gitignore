@@ -1,0 +1,6 @@
+venv
+gcp-auth.json
+.idea
+*.pyc
+/data/
+coverage.*

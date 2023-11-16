@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ann-worker
+  labels:
+    app: ann-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ann-worker
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: ann-worker
+        app: ann-worker
+    spec:
+      initContainers:
+      - name: waiter
+        image: docker.clrn.dev/waiter:latest
+        args: ["postgres,price-worker"]
+      containers:
+      - image: docker.clrn.dev/crypto-ml:latest
+        imagePullPolicy: Always
+        name: worker
+        args: ["/src/workers/ann.py"]
+        envFrom:
+          - secretRef:
+              name: env
+        resources:
+          requests:
+            memory: "2Gi"
+          limits:
+            memory: "8Gi"
+        livenessProbe:
+          exec:
+            command: ["rm", "/tmp/alive"]
+          initialDelaySeconds: 1200
+          periodSeconds: 120
+          timeoutSeconds: 10
+        readinessProbe:
+          exec:
+            command: ["ls", "/tmp/ready"]
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 10
+      imagePullSecrets:
+        - name: regcred
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 1

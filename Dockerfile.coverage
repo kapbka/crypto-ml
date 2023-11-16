@@ -1,0 +1,6 @@
+ARG BASE
+FROM ${BASE}
+
+ENV NUMBA_DISABLE_JIT=1
+
+ENTRYPOINT ["coverage", "run", "--parallel-mode"]

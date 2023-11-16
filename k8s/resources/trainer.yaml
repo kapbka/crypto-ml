@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trainer
+  labels:
+    app: trainer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: trainer
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: trainer
+        app: trainer
+    spec:
+      initContainers:
+      - name: waiter
+        image: docker.clrn.dev/waiter:latest
+        args: ["postgres,price-worker"]
+      containers:
+      - image: docker.clrn.dev/crypto-ml-gpu:latest
+        imagePullPolicy: Always
+        name: worker-1
+        args:
+          - /src/tools/trainer.py
+          - --currency
+          - btc
+          - --cells
+          - '128'
+          - --epoch
+          - '50'
+          - --save-profit
+          - '0.25'
+          - --only-crashes
+          - --infinite
+          - --labels
+          - 0.02,20 0.03,30
+          - --crash-params
+          - 1440,1440,5
+          - '--end'
+          - '2022-05-01'
+        envFrom:
+          - secretRef:
+              name: env
+        resources:
+          requests:
+            memory: "5Gi"
+          limits:
+            memory: "8Gi"
+        livenessProbe:
+          exec:
+            command: ["rm", "/tmp/alive"]
+          initialDelaySeconds: 300
+          periodSeconds: 300
+          timeoutSeconds: 10
+        readinessProbe:
+          exec:
+            command: ["ls", "/tmp/ready"]
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 10
+#      - image: docker.clrn.dev/crypto-ml-gpu:latest
+#        imagePullPolicy: Always
+#        name: worker-2
+#        args:
+#          - /src/tools/trainer.py
+#          - --currency
+#          - btc
+#          - --cells
+#          - '128'
+#          - --epoch
+#          - '50'
+#          - --save-profit
+#          - '0.3'
+#          - --only-crashes
+#          - --infinite
+#          - --labels
+#          - 0.02,40
+#          - --crash-params
+#          - 480,480,4
+#          - '--end'
+#          - '2022-05-01'
+#        envFrom:
+#          - secretRef:
+#              name: env
+#        resources:
+#          requests:
+#            memory: "5Gi"
+#          limits:
+#            memory: "8Gi"
+#        livenessProbe:
+#          exec:
+#            command: ["rm", "/tmp/alive"]
+#          initialDelaySeconds: 300
+#          periodSeconds: 300
+#          timeoutSeconds: 10
+#        readinessProbe:
+#          exec:
+#            command: ["ls", "/tmp/ready"]
+#          initialDelaySeconds: 10
+#          periodSeconds: 10
+#          timeoutSeconds: 10
+#      - image: docker.clrn.dev/crypto-ml-gpu:latest
+#        imagePullPolicy: Always
+#        name: worker-3
+#        args:
+#          - /src/tools/trainer.py
+#          - --currency
+#          - btc
+#          - --cells
+#          - '128'
+#          - --epoch
+#          - '50'
+#          - --save-profit
+#          - '0.3'
+#          - --infinite
+#          - --labels
+#          - 0.02,40
+#          - --crash-params
+#          - 480,60,4
+#          - '--end'
+#          - '2022-05-01'
+#        envFrom:
+#          - secretRef:
+#              name: env
+#        resources:
+#          requests:
+#            memory: "5Gi"
+#          limits:
+#            memory: "8Gi"
+#        livenessProbe:
+#          exec:
+#            command: ["rm", "/tmp/alive"]
+#          initialDelaySeconds: 300
+#          periodSeconds: 300
+#          timeoutSeconds: 10
+#        readinessProbe:
+#          exec:
+#            command: ["ls", "/tmp/ready"]
+#          initialDelaySeconds: 10
+#          periodSeconds: 10
+#          timeoutSeconds: 10
+      imagePullSecrets:
+        - name: regcred
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 1

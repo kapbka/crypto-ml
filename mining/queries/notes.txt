@@ -1,0 +1,5 @@
+// between timestamps
+db.getCollection('tweet').find({
+    ts: {$gte: ISODate("2021-02-20 16:10:00"),
+         $lte: ISODate("2021-02-20 16:11:00")}
+}).sort({'blob_polarity': 1})

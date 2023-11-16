@@ -1,0 +1,1479 @@
+{
+    "meta": {
+        "type": "db",
+        "canSave": true,
+        "canEdit": true,
+        "canAdmin": true,
+        "canStar": true,
+        "canDelete": true,
+        "slug": "deals",
+        "url": "/d/deals/deals",
+        "expires": "0001-01-01T00:00:00Z",
+        "created": "2022-02-25T11:03:32Z",
+        "updated": "2022-08-10T13:35:18Z",
+        "updatedBy": "Anonymous",
+        "createdBy": "admin",
+        "version": 83,
+        "hasAcl": false,
+        "isFolder": false,
+        "folderId": 0,
+        "folderUid": "",
+        "folderTitle": "General",
+        "folderUrl": "",
+        "provisioned": false,
+        "provisionedExternalId": "",
+        "annotationsPermissions": {
+            "dashboard": {
+                "canAdd": true,
+                "canEdit": true,
+                "canDelete": true
+            },
+            "organization": {
+                "canAdd": true,
+                "canEdit": true,
+                "canDelete": true
+            }
+        },
+        "isPublic": false
+    },
+    "dashboard": {
+        "annotations": {
+            "list": [
+                {
+                    "builtIn": 1,
+                    "datasource": "-- Grafana --",
+                    "enable": true,
+                    "hide": true,
+                    "iconColor": "rgba(0, 211, 255, 1)",
+                    "name": "Annotations & Alerts",
+                    "target": {
+                        "limit": 100,
+                        "matchAny": false,
+                        "tags": [],
+                        "type": "dashboard"
+                    },
+                    "type": "dashboard"
+                }
+            ]
+        },
+        "editable": true,
+        "fiscalYearStartMonth": 0,
+        "graphTooltip": 0,
+        "id": 7,
+        "iteration": 1654692710724,
+        "links": [
+            {
+                "asDropdown": false,
+                "icon": "external link",
+                "includeVars": false,
+                "keepTime": false,
+                "tags": [],
+                "targetBlank": false,
+                "title": "New link",
+                "tooltip": "",
+                "type": "dashboards",
+                "url": ""
+            }
+        ],
+        "liveNow": false,
+        "panels": [
+            {
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "spanNulls": true,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "area"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "red",
+                                    "value": null
+                                },
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                }
+                            ]
+                        },
+                        "unit": "currencyUSD"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 11,
+                    "w": 21,
+                    "x": 0,
+                    "y": 0
+                },
+                "id": 15,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom"
+                    },
+                    "tooltip": {
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "time_series",
+                        "group": [],
+                        "hide": false,
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "select ts as \"time\",\n       close\n  from price\n where 1 = 1 \n   and currency = '$currency'\n   and $__timeFilter(ts)\n order by ts",
+                        "refId": "B",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "buy_price"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "deal",
+                        "timeColumn": "buy_ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    },
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "time_series",
+                        "group": [],
+                        "hide": false,
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "select dt.buy_ts as \"time\",\n       dt.usd     as rs,\n       '[ ' || dt.version_id::text || ' - ' || dt.md5 || ' ]' as md5\n  from get_run_sum_deals_by_minute_tab('$currency', array[$version], array[$individual], $__timeFrom(), $__timeTo()) dt\n order by dt.buy_ts",
+                        "refId": "C",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "share"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "individual_attribute",
+                        "timeColumn": "create_ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    }
+                ],
+                "title": "Running sum and $currency price (USD)",
+                "transformations": [],
+                "type": "timeseries"
+            },
+            {
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "custom": {
+                            "align": "auto",
+                            "displayMode": "auto"
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "red",
+                                    "value": null
+                                },
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                }
+                            ]
+                        },
+                        "unit": "currencyUSD"
+                    },
+                    "overrides": [
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "#"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 14
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Ver"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 18
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Individual md5"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 193
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Run %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 68
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Deals"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 61
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "+ deals %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 76
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "In %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 64
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Min %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 76
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Avg %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 64
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Max %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 72
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Parent"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 56
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Portf"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 43
+                                },
+                                {
+                                    "id": "mappings",
+                                    "value": [
+                                        {
+                                            "options": {
+                                                "1": {
+                                                    "index": 0,
+                                                    "text": "Y"
+                                                }
+                                            },
+                                            "type": "value"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "gridPos": {
+                    "h": 10,
+                    "w": 11,
+                    "x": 0,
+                    "y": 11
+                },
+                "id": 14,
+                "options": {
+                    "footer": {
+                        "fields": "",
+                        "reducer": [
+                            "sum"
+                        ],
+                        "show": false
+                    },
+                    "showHeader": true,
+                    "sortBy": []
+                },
+                "pluginVersion": "8.4.5",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "table",
+                        "group": [],
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "with deals as\n(\n    select d.currency,\n           d.version,\n           d.individual as ind_id,\n           i.md5,\n           i.parent_md5,\n           d.id as deal_id,\n           --\n           row_number() over (partition by d.currency, d.version, d.individual order by d.buy_ts) as rn,\n           count(*) over (partition by d.currency, d.version, d.individual) as rc,\n           --\n           d.buy_ts,\n           d.buy_price,\n           --\n           case\n               -- if a deal is open at the end of the interval\n               -- we set sell_ts as the end of the interval\n               when d.sell_price is null then\n                   1\n               else\n                   0\n           end as is_sell_open,\n           case\n               -- if a deal is open at the end of the interval\n               -- we set sell_ts as the end of the interval\n               when d.sell_price is null then\n                   date_trunc('minute', $__timeTo()::timestamp)\n               else\n                   d.sell_ts\n           end as sell_ts,\n           case\n               -- if a deal is open at the end of the interval\n               -- we get the price for the end of the interval\n               when d.sell_price is null then\n                   (\n                       select close\n                         from price p\n                        where 1 = 1\n                          and p.currency = d.currency\n                          and p.ts = date_trunc('minute', $__timeTo()::timestamp)\n                   )\n               else\n                   d.sell_price\n           end as sell_price,\n           -- \n           d.run_usd,\n           d.run_crypto,\n           d.run_percent,\n           i.is_portfolio\n      from deal d,\n           individual i\n     where 1 = 1\n       and d.currency = '$currency'\n       and d.version = any(array[$version]::int[])\n       and d.individual = i.id\n       and (\n               (d.buy_ts between $__timeFrom() and $__timeTo() or d.buy_ts < $__timeTo() and coalesce(d.sell_ts,$__timeTo()) between $__timeFrom() and $__timeTo())\n               or\n               ($__timeFrom() between d.buy_ts and coalesce(d.sell_ts,$__timeTo()) and $__timeTo() between d.buy_ts and coalesce(d.sell_ts,$__timeTo()) )\n           )\n),\ndeals_res as\n(\n    select d.currency,\n           d.version,\n           d.ind_id,\n           d.md5,\n           d.parent_md5,\n           --\n           d.rn,\n           d.rc,\n           max(d.is_sell_open) over(partition by d.currency, d.version, d.ind_id) is_open_deals,\n           --\n           d.buy_ts,\n           d.buy_price,\n           --\n           d.is_sell_open,\n           d.sell_ts,\n           d.sell_price,\n           -- res\n           coalesce((d.sell_price*0.999 - d.buy_price*1.001), 0) as deal_res,\n           case\n             when extract(epoch from (d.sell_ts - d.buy_ts))/3600 < 0/60 then\n                   least(coalesce((d.sell_price*0.999 - d.buy_price*1.001)/d.buy_price * 100, 0), 0)\n               else\n                   coalesce((d.sell_price*0.999 - d.buy_price*1.001)/d.buy_price * 100, 0)\n           end as deal_res_percent,\n           --\n           extract(epoch from (d.sell_ts - d.buy_ts))/3600  as in_hours,\n           extract(epoch from ($__timeTo()::timestamp - $__timeFrom()::timestamp))/3600 as total_hours,\n           --\n           case\n               when coalesce((d.sell_price*0.999 - d.buy_price*1.001), 0) > 0 then\n                  1\n               else\n                  0\n           end as is_pos_deal_res,\n           case\n               when coalesce((d.sell_price*0.999 - d.buy_price*1.001), 0) <= 0 then\n                  1\n               else\n                  0\n           end as is_neg_deal_res,\n           --\n           d.run_crypto,\n           d.run_usd,\n           d.run_percent,\n           d.is_portfolio\n      from deals d\n)\n,groupped as\n(\n    select dr.currency,\n           dr.version,\n           dr.ind_id,\n           dr.md5,\n           dr.parent_md5,\n           --\n           sum(dr.is_pos_deal_res)          as pos_deals_cnt,\n           sum(dr.is_neg_deal_res)          as neg_deals_cnt,\n           count(*)                         as deals_cnt,\n           --\n           sum(in_hours)                    as in_hours,\n           min(total_hours) - sum(in_hours) as out_hours,\n           min(total_hours)                 as total_hours,\n           --\n           min(dr.deal_res_percent)         as min_perc,\n           avg(dr.deal_res_percent)         as avg_perc,\n           max(dr.deal_res_percent)         as max_perc,\n           --\n           max(\n               case\n                   when is_open_deals = 1 and dr.rn = dr.rc - 1 then\n                       dr.run_crypto\n                   when is_open_deals = 0 and dr.rn = dr.rc then\n                       dr.run_crypto\n                   else\n                       null\n               end\n           ) as run_crypto,\n           max(\n               case\n                   when is_open_deals = 1 and dr.rn = dr.rc - 1 then\n                       dr.run_usd\n                   when is_open_deals = 0 and dr.rn = dr.rc then\n                       dr.run_usd\n                   else\n                       null\n               end\n           ) as run_usd,\n           max(\n               case\n                   when is_open_deals = 1 and dr.rn = dr.rc - 1 then\n                       dr.run_percent\n                   when is_open_deals = 0 and dr.rn = dr.rc then\n                       dr.run_percent\n                   else\n                       null\n               end\n           ) as run_percent,\n           max(dr.is_portfolio) as is_portfolio\n      from deals_res dr\n     where 1 = 1\n     group by dr.currency,\n           dr.version,\n           dr.ind_id,\n           dr.md5,\n           dr.parent_md5\n),\nall_data as\n(\n\tselect row_number() over(partition by dt.currency_code, dt.version_id, dt.individual_id order by dt.buy_ts desc) as rn,\n\t       dt.*,\n\t       --\n\t       g.pos_deals_cnt,\n\t       g.deals_cnt,\n\t       g.in_hours,\n\t       g.out_hours,\n\t       g.total_hours,\n\t       --\n\t       g.min_perc,\n\t       g.avg_perc,\n\t       g.max_perc,\n\t       g.parent_md5,\n\t       g.is_portfolio\n\t  from groupped g,\n\t       get_run_sum_deals_tab\n\t       (\n\t\t        p_currency_code := g.currency,\n    \t\t    p_version_arr   := array[g.version::text],\n    \t\t    p_individ_id    := g.ind_id,\n    \t\t    p_start_ts      := $__timeFrom()::timestamp,\n    \t\t    p_end_ts        := $__timeTo()::timestamp,\n    \t\t    p_is_debug      := 0\n\t       ) dt\n\t where g.ind_id = dt.individual_id\n)\nselect row_number() over(order by ad.percent desc nulls last, ad.parent_md5 nulls first) as \"#\",\n       ad.version_id as \"Ver\",\n       ad.md5 as \"Individual md5\",\n       ad.is_portfolio as \"Portf\",\n       ad.percent as \"Run %\",\n       --\n       ad.deals_cnt   as \"Deals\",\n       ad.pos_deals_cnt::float / ad.deals_cnt * 100  as \"+ deals %\",\n       ad.in_hours / ad.total_hours * 100 as \"In %\",\n       -- ad.out_hours / ad.total_hours * 100 as \"Out %\",\n       --\n       ad.min_perc    as \"Min %\",\n       ad.avg_perc    as \"Avg %\",\n       ad.max_perc    as \"Max %\"--,\n       --ad.parent_md5  as \"Parent\",\n  from all_data ad\n where rn = 1",
+                        "refId": "A",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "buy_price"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "deal_2910",
+                        "timeColumn": "buy_ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    }
+                ],
+                "title": "Top ",
+                "transformations": [],
+                "type": "table"
+            },
+            {
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "custom": {
+                            "align": "auto",
+                            "displayMode": "auto"
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "red",
+                                    "value": null
+                                },
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                }
+                            ]
+                        },
+                        "unit": "currencyUSD"
+                    },
+                    "overrides": [
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "portfolio_md5"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 108
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "md5"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 278
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Last Sell Date"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 147
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "dateTimeAsIso"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Last Sell Price"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 110
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "In?"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 25
+                                },
+                                {
+                                    "id": "mappings",
+                                    "value": [
+                                        {
+                                            "options": {
+                                                "1": {
+                                                    "index": 0,
+                                                    "text": "Y"
+                                                }
+                                            },
+                                            "type": "value"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "gridPos": {
+                    "h": 10,
+                    "w": 10,
+                    "x": 11,
+                    "y": 11
+                },
+                "id": 17,
+                "options": {
+                    "footer": {
+                        "fields": "",
+                        "reducer": [
+                            "sum"
+                        ],
+                        "show": false
+                    },
+                    "showHeader": true,
+                    "sortBy": []
+                },
+                "pluginVersion": "8.4.5",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "table",
+                        "group": [],
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "with members as\n(\n    select q.*\n      from \n           (\n               select i.md5,\n                      --\n                      d.buy_ts,\n                      d.buy_price,\n                      d.sell_ts,\n                      d.sell_price,\n                      case\n                          when sell_ts is null then\n                              1\n                          else\n                              null\n                      end as is_in_deal,\n                      --\n                      row_number() over (partition by d.currency, d.version, d.individual order by d.buy_ts) as rn,\n                      count(*) over (partition by d.currency, d.version, d.individual) as rc\n                 from deal d,\n                      individual i\n                where 1 = 1\n                  and d.currency = '$currency'\n                  and d.version = any(array[$version]::int[])\n                  and d.individual = i.id\n                  and i.md5 in (select md5 from portfolio p where p.portfolio_md5 in ($individual))\n                  and (\n                          (d.buy_ts between $__timeFrom() and $__timeTo() or d.buy_ts < $__timeTo() and coalesce(d.sell_ts,$__timeTo()) between $__timeFrom() and $__timeTo())\n                          or\n                          ($__timeFrom() between d.buy_ts and coalesce(d.sell_ts,$__timeTo()) and $__timeTo() between d.buy_ts and coalesce(d.sell_ts,$__timeTo()) )\n                      )\n           ) q\n     where q.rn = q.rc\n),\nportfolio as\n(\n    select row_number() over(partition by p.portfolio_md5 order by p.md5, m.buy_ts desc) as prn,\n           p.portfolio_md5,\n           p.md5,\n           m.buy_ts,\n           m.buy_price,\n           m.sell_ts,\n           m.sell_price,\n           m.is_in_deal\n      from portfolio p\n left join members m\n        on p.md5 = m.md5\n     where 1 = 1 \n       and p.portfolio_md5 in ($individual)\n)\nselect case\n           when p.prn = 1 then\n               p.portfolio_md5\n           else\n               null\n       end as portfolio_md5,\n       p.md5,\n       p.sell_ts as \"Last Sell Date\",\n       p.sell_price as \"Last Sell Price\",\n       p.is_in_deal as \"In?\"\n  from portfolio p\n order by p.portfolio_md5,\n       p.md5,\n       p.buy_ts desc",
+                        "refId": "A",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "buy_price"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "deal_2910",
+                        "timeColumn": "buy_ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    }
+                ],
+                "title": "Portfolio",
+                "transformations": [],
+                "type": "table"
+            },
+            {
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "custom": {
+                            "align": "auto",
+                            "displayMode": "auto"
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "red",
+                                    "value": null
+                                },
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                }
+                            ]
+                        },
+                        "unit": "currencyUSD"
+                    },
+                    "overrides": [
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "md5"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 264
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Ver."
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 62
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Buy Price"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 80
+                                },
+                                {
+                                    "id": "decimals",
+                                    "value": 0
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Sell Price"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 87
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Buy Date"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 159
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "dateTimeAsIso"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Sell Date"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 156
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "dateTimeAsIso"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Run USD"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Run %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 76
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Deal ID"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 112
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "#"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 29
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Deal Res USD"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 108
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Deal Res %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 91
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Individual ID"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 102
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Ver"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 48
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Portfolio"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 77
+                                },
+                                {
+                                    "id": "mappings",
+                                    "value": [
+                                        {
+                                            "options": {
+                                                "1": {
+                                                    "index": 0,
+                                                    "text": "Y"
+                                                }
+                                            },
+                                            "type": "value"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "gridPos": {
+                    "h": 11,
+                    "w": 21,
+                    "x": 0,
+                    "y": 21
+                },
+                "id": 16,
+                "options": {
+                    "footer": {
+                        "fields": "",
+                        "reducer": [
+                            "sum"
+                        ],
+                        "show": false
+                    },
+                    "showHeader": true,
+                    "sortBy": []
+                },
+                "pluginVersion": "8.4.5",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "table",
+                        "group": [],
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "with q as \n(\n  select row_number() over(partition by dt.currency_code, dt.version_id, dt.individual_id order by dt.buy_ts desc) as \"#\",\n         dt.version_id as \"Ver\",\n         dt.md5,\n        i.is_portfolio as \"Portfolio\",\n         dt.buy_price as \"Buy Price\",\n         dt.sell_price as \"Sell Price\",\n         coalesce((dt.sell_price*0.999 - dt.buy_price*1.001), 0) as \"Deal Res USD\",\n         coalesce((dt.sell_price*0.999 - dt.buy_price*1.001)/dt.buy_price * 100, 0) as \"Deal Res %\",\n         dt.buy_ts as \"Buy Date\",\n         dt.sell_ts as \"Sell Date\",\n         dt.usd as \"Run USD\",\n         dt.percent as \"Run %\",\n         dt.individual_id as \"Individual ID\",\n         dt.id as \"Deal ID\"\n    from individual i,\n         get_run_sum_deals_tab('$currency', array[$version], i.id, $__timeFrom(), $__timeTo()) dt\n   where 1 = 1\n     and i.md5 in ($individual)\n     and i.md5 = dt.md5\n)\nselect * from q where \"#\" <= $deal_limit",
+                        "refId": "A",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "buy_price"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "deal_2910",
+                        "timeColumn": "buy_ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    }
+                ],
+                "title": "Deals",
+                "transformations": [],
+                "type": "table"
+            },
+            {
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "drawStyle": "line",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "lineInterpolation": "linear",
+                            "lineWidth": 1,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "spanNulls": true,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "area"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "red",
+                                    "value": null
+                                },
+                                {
+                                    "color": "green",
+                                    "value": 0
+                                }
+                            ]
+                        },
+                        "unit": "currencyUSD"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 11,
+                    "w": 21,
+                    "x": 0,
+                    "y": 32
+                },
+                "id": 13,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom"
+                    },
+                    "tooltip": {
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "time_series",
+                        "group": [],
+                        "hide": false,
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "SELECT\n  ts AS \"time\",\n  0 as \"$currency\"\nFROM price\nWHERE currency = '$currency'\n  and $__timeFilter(ts)\nORDER BY 1",
+                        "refId": "B",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "close"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "price",
+                        "timeColumn": "ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    },
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "time_series",
+                        "group": [],
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "with deals as\n(\nselect dt.version_id,\n       dt.md5,\n       case\n           -- if a deal is open at the end of the interval\n           -- we set sell_ts as the end of the interval\n           when dt.sell_price is null then\n               date_trunc('minute', $__timeTo()::timestamp)\n           else\n               dt.sell_ts\n       end as sell_ts,\n       dt.usd     as run_usd\n  from get_run_sum_deals_by_minute_tab('$currency', array[$version], array[$individual], $__timeFrom(), $__timeTo()) dt\n)\n    select p.ts as \"time\",\n           d.run_usd - p.close as diff,\n           '[ ' || d.version_id::text || ' - ' || d.md5 || ' ]' as md5\n      from deals d,\n           price p\n     where d.sell_ts = p.ts\n       and p.currency = '$currency'\n     order by p.ts",
+                        "refId": "A",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "buy_price"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "deal_2910",
+                        "timeColumn": "buy_ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    }
+                ],
+                "title": "Difference Running sum and $currency price (USD)",
+                "transformations": [],
+                "type": "timeseries"
+            },
+            {
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "palette-classic"
+                        },
+                        "custom": {
+                            "axisLabel": "",
+                            "axisPlacement": "auto",
+                            "barAlignment": 0,
+                            "drawStyle": "bars",
+                            "fillOpacity": 0,
+                            "gradientMode": "none",
+                            "hideFrom": {
+                                "legend": false,
+                                "tooltip": false,
+                                "viz": false
+                            },
+                            "lineInterpolation": "linear",
+                            "lineWidth": 3,
+                            "pointSize": 5,
+                            "scaleDistribution": {
+                                "type": "linear"
+                            },
+                            "showPoints": "auto",
+                            "spanNulls": true,
+                            "stacking": {
+                                "group": "A",
+                                "mode": "none"
+                            },
+                            "thresholdsStyle": {
+                                "mode": "line+area"
+                            }
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "dark-red",
+                                    "value": null
+                                },
+                                {
+                                    "color": "orange",
+                                    "value": -1
+                                },
+                                {
+                                    "color": "blue",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "dark-green",
+                                    "value": 1
+                                }
+                            ]
+                        },
+                        "unit": "percent"
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 12,
+                    "w": 21,
+                    "x": 0,
+                    "y": 43
+                },
+                "id": 4,
+                "options": {
+                    "legend": {
+                        "calcs": [],
+                        "displayMode": "list",
+                        "placement": "bottom"
+                    },
+                    "tooltip": {
+                        "mode": "single",
+                        "sort": "none"
+                    }
+                },
+                "pluginVersion": "8.2.3",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "time_series",
+                        "group": [],
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "SELECT\n  ts AS \"time\",\n  0 as \"$currency\"\nFROM price\nWHERE currency = '$currency'\n  and $__timeFilter(ts)\nORDER BY 1",
+                        "refId": "A",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "buy_price"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "deal_2910",
+                        "timeColumn": "buy_ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    },
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "time_series",
+                        "group": [],
+                        "hide": false,
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "with deals as\n(\n    select d.currency,\n           d.version,\n           d.individual as ind_id,\n           i.md5,\n           --\n           d.buy_ts,\n           d.buy_price,\n           --\n           case\n               -- if a deal is open at the end of the interval\n               -- we set sell_ts as the end of the interval\n               when d.sell_price is null then\n                   date_trunc('minute', $__timeTo()::timestamp)\n               else\n                   d.sell_ts\n           end as sell_ts,\n           case\n               -- if a deal is open at the end of the interval\n               -- we get the price for the end of the interval\n               when d.sell_price is null then\n                   (\n                       select close\n                         from price p\n                        where p.currency = d.currency\n                          and p.ts = date_trunc('minute', $__timeTo()::timestamp)\n                   )\n               else\n                   d.sell_price\n           end as sell_price\n      from deal d,\n           individual i\n     where 1 = 1\n       and d.currency = '$currency'\n       and d.version = any(array[$version]::int[])\n       and d.individual = i.id\n       and i.md5 in ($individual)\n       and (\n               (d.buy_ts between $__timeFrom() and $__timeTo() or d.buy_ts < $__timeTo() and coalesce(d.sell_ts,$__timeTo()) between $__timeFrom() and $__timeTo())\n               or\n               ($__timeFrom() between d.buy_ts and coalesce(d.sell_ts,$__timeTo()) and $__timeTo() between d.buy_ts and coalesce(d.sell_ts,$__timeTo()) )\n           )\n),\ndeals_res as\n(\n    select d.currency,\n           d.version,\n           d.ind_id,\n           d.md5,\n           --\n           d.buy_ts,\n           d.buy_price,\n           --\n           d.sell_ts,\n           d.sell_price,\n           -- res\n           coalesce((d.sell_price*0.999 - d.buy_price*1.001), 0) as deal_res,\n           coalesce((d.sell_price*0.999 - d.buy_price*1.001)/d.buy_price * 100, 0) as deal_res_percent\n      from deals d\n)\nselect sell_ts as \"time\",\n       deal_res_percent as deal_perc,\n       '[ ' || dr.version::text || ' - ' || dr.md5 || ' ]' as md5\n  from deals_res dr \n where 1 = 1 \n order by sell_ts",
+                        "refId": "B",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "buy_price"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "deal_2910",
+                        "timeColumn": "buy_ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    }
+                ],
+                "title": "Deals percent",
+                "transformations": [],
+                "type": "timeseries"
+            }
+        ],
+        "refresh": "1m",
+        "schemaVersion": 35,
+        "style": "dark",
+        "tags": [
+            "crypto"
+        ],
+        "templating": {
+            "list": [
+                {
+                    "current": {
+                        "selected": false,
+                        "text": "btc",
+                        "value": "btc"
+                    },
+                    "definition": "select code __value from currency order by code",
+                    "description": "Crypto currency",
+                    "hide": 0,
+                    "includeAll": false,
+                    "multi": false,
+                    "name": "currency",
+                    "options": [],
+                    "query": "select code __value from currency order by code",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                },
+                {
+                    "current": {
+                        "selected": true,
+                        "text": [
+                            "5"
+                        ],
+                        "value": [
+                            "5"
+                        ]
+                    },
+                    "definition": "select id __value from version",
+                    "hide": 0,
+                    "includeAll": true,
+                    "multi": true,
+                    "name": "version",
+                    "options": [],
+                    "query": "select id __value from version",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                },
+                {
+                    "current": {
+                        "selected": true,
+                        "text": [
+                            "f9f2a5f59557f6fa064a3d38128a820d"
+                        ],
+                        "value": [
+                            "f9f2a5f59557f6fa064a3d38128a820d"
+                        ]
+                    },
+                    "definition": "select md5 as __value, md5 as __text from individual",
+                    "description": "Individual list",
+                    "hide": 0,
+                    "includeAll": true,
+                    "multi": true,
+                    "name": "individual",
+                    "options": [],
+                    "query": "select md5 as __value, md5 as __text from individual",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 1,
+                    "type": "query"
+                },
+                {
+                    "current": {
+                        "selected": false,
+                        "text": "20",
+                        "value": "20"
+                    },
+                    "description": "Limit of deals per individual for Deals table panel",
+                    "hide": 0,
+                    "includeAll": false,
+                    "multi": false,
+                    "name": "deal_limit",
+                    "options": [
+                        {
+                            "selected": false,
+                            "text": "1",
+                            "value": "1"
+                        },
+                        {
+                            "selected": false,
+                            "text": "2",
+                            "value": "2"
+                        },
+                        {
+                            "selected": false,
+                            "text": "3",
+                            "value": "3"
+                        },
+                        {
+                            "selected": false,
+                            "text": "4",
+                            "value": "4"
+                        },
+                        {
+                            "selected": false,
+                            "text": "5",
+                            "value": "5"
+                        },
+                        {
+                            "selected": false,
+                            "text": "10",
+                            "value": "10"
+                        },
+                        {
+                            "selected": true,
+                            "text": "20",
+                            "value": "20"
+                        },
+                        {
+                            "selected": false,
+                            "text": "50",
+                            "value": "50"
+                        },
+                        {
+                            "selected": false,
+                            "text": "100",
+                            "value": "100"
+                        },
+                        {
+                            "selected": false,
+                            "text": "200",
+                            "value": "200"
+                        },
+                        {
+                            "selected": false,
+                            "text": "300",
+                            "value": "300"
+                        },
+                        {
+                            "selected": false,
+                            "text": "400",
+                            "value": "400"
+                        },
+                        {
+                            "selected": false,
+                            "text": "500",
+                            "value": "500"
+                        },
+                        {
+                            "selected": false,
+                            "text": "1000",
+                            "value": "1000"
+                        },
+                        {
+                            "selected": false,
+                            "text": "10000",
+                            "value": "10000"
+                        }
+                    ],
+                    "query": "1, 2, 3, 4, 5, 10,  20, 50, 100, 200, 300, 400, 500, 1000, 10000",
+                    "queryValue": "",
+                    "skipUrlSync": false,
+                    "type": "custom"
+                }
+            ]
+        },
+        "time": {
+            "from": "2021-11-01T00:00:00.000Z",
+            "to": "now"
+        },
+        "timepicker": {},
+        "timezone": "",
+        "title": "Deals",
+        "uid": "deals",
+        "version": 83,
+        "weekStart": ""
+    }
+}

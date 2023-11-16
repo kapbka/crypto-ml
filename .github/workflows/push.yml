@@ -1,0 +1,40 @@
+name: docker-compose-actions-workflow
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+#      - name: Login to Docker Registry
+#        uses: docker/login-action@v1
+#        with:
+#          registry: ${{ secrets.DOCKER_REGISTRY }}
+#          username: ${{ secrets.DOCKER_USER }}
+#          password: ${{ secrets.DOCKER_TOKEN }}
+      - uses: KengoTODA/actions-setup-docker-compose@main
+        with:
+          version: 'v2.1.1'
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Build
+        run: make build-tests
+      - name: Test
+        run: make test
+      - name: Upload coverage
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          fail_ci_if_error: true
+          verbose: true
+      - name: Send telegram message if tests failed
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.DEPLOY_CHAT_ID }}
+          token: ${{ secrets.DEPLOY_BOT_ID }}
+          message: |
+            Tests failed on branch ${{ steps.extract_branch.outputs.branch }}!
+            Commit https://github.com/${{ github.repository }}/commit/${{github.sha}}

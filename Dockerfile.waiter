@@ -1,0 +1,7 @@
+ARG BASE
+FROM ${BASE}
+
+WORKDIR /src
+COPY common/k8s/wait.py .
+
+ENTRYPOINT ["python", "wait.py"]

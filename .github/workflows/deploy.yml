@@ -1,0 +1,102 @@
+name: deploy
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - uses: KengoTODA/actions-setup-docker-compose@main
+      with:
+        version: 'v2.1.1'
+    - name: Send telegram message
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.DEPLOY_CHAT_ID }}
+        token: ${{ secrets.DEPLOY_BOT_ID }}
+        message: |
+          Testing of commit https://github.com/${{ github.repository }}/commit/${{github.sha}}
+          Message: ${{ github.event.commits[0].message }}
+          Author: ${{ github.actor }}
+          Status: Running tests
+    - name: Login to Docker Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ secrets.DOCKER_REGISTRY }}
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+    - name: Save kubeconfig
+      run: mkdir -p $HOME/.kube/ && echo "$KUBECONFIG" | base64 -d > $HOME/.kube/config
+      env:
+        KUBECONFIG : ${{secrets.KUBECONFIG}}
+    - name: Kubectl install
+      uses: Azure/setup-kubectl@v2.0
+    - name: Kustomize install
+      run: |
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+        mv kustomize $(dirname $(which kubectl))
+    - name: Kustomize check
+      run: kustomize version
+    - name: Check cluster nodes
+      run: kubectl get nodes
+    - name: Run Build
+      run: make build
+    - name: Make PROD Clone
+      run: docker-compose -p prod --env-file .env-prod run --no-deps db-dump | docker-compose run psql
+    - name: Test PROD DB Upgrade
+      run: docker-compose run db-deploy
+    - name: Wait for Continuous Integration to Succeed
+      uses: fountainhead/action-wait-for-check@v1.0.0
+      id: wait-for-build
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        checkName: test
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        timeoutSeconds: 3600
+        intervalSeconds: 10
+    - name: Continuous Integration Failed
+      if: steps.wait-for-build.outputs.conclusion != 'success'
+      shell: bash
+      run: |
+        echo "Error! $The continuous Integration workflow has status of [${{steps.wait-for-build.outputs.conclusion}}]" 1>&2
+        exit 64
+    - name: Send telegram message
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.DEPLOY_CHAT_ID }}
+        token: ${{ secrets.DEPLOY_BOT_ID }}
+        message: |
+          Deployment of commit https://github.com/${{ github.repository }}/commit/${{github.sha}}
+          Message: ${{ github.event.commits[0].message }}
+          Author: ${{ github.actor }}
+          Status: Tests passed, deployment in progress
+    - name: Push images
+      run: make push
+    - name: Deploy
+      run: make deploy
+    - name: Deploy Grafana dashboards
+      run: docker-compose -p prod --env-file .env-prod run --no-deps dashboards-deploy
+    - name: Send telegram message
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.DEPLOY_CHAT_ID }}
+        token: ${{ secrets.DEPLOY_BOT_ID }}
+        message: |
+          Deployment of commit https://github.com/${{ github.repository }}/commit/${{github.sha}}
+          Message: ${{ github.event.commits[0].message }}
+          Author: ${{ github.actor }}
+          Status: Success
+    - name: Send telegram message if failed
+      if: failure()
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.DEPLOY_CHAT_ID }}
+        token: ${{ secrets.DEPLOY_BOT_ID }}
+        message: |
+          Deployment of commit https://github.com/${{ github.repository }}/commit/${{github.sha}}
+          Message: ${{ github.event.commits[0].message }}
+          Author: ${{ github.actor }}
+          Status: Failed

@@ -1,0 +1,1728 @@
+{
+    "meta": {
+        "type": "db",
+        "canSave": true,
+        "canEdit": true,
+        "canAdmin": true,
+        "canStar": true,
+        "canDelete": true,
+        "slug": "top",
+        "url": "/d/top/top",
+        "expires": "0001-01-01T00:00:00Z",
+        "created": "2022-02-25T11:07:01Z",
+        "updated": "2022-08-10T13:35:17Z",
+        "updatedBy": "Anonymous",
+        "createdBy": "admin",
+        "version": 87,
+        "hasAcl": false,
+        "isFolder": false,
+        "folderId": 0,
+        "folderUid": "",
+        "folderTitle": "General",
+        "folderUrl": "",
+        "provisioned": false,
+        "provisionedExternalId": "",
+        "annotationsPermissions": {
+            "dashboard": {
+                "canAdd": true,
+                "canEdit": true,
+                "canDelete": true
+            },
+            "organization": {
+                "canAdd": true,
+                "canEdit": true,
+                "canDelete": true
+            }
+        },
+        "isPublic": false
+    },
+    "dashboard": {
+        "annotations": {
+            "list": [
+                {
+                    "builtIn": 1,
+                    "datasource": "-- Grafana --",
+                    "enable": true,
+                    "hide": true,
+                    "iconColor": "rgba(0, 211, 255, 1)",
+                    "name": "Annotations & Alerts",
+                    "target": {
+                        "limit": 100,
+                        "matchAny": false,
+                        "tags": [],
+                        "type": "dashboard"
+                    },
+                    "type": "dashboard"
+                }
+            ]
+        },
+        "editable": true,
+        "fiscalYearStartMonth": 0,
+        "graphTooltip": 0,
+        "id": 8,
+        "iteration": 1654850272029,
+        "links": [],
+        "liveNow": false,
+        "panels": [
+            {
+                "description": "",
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                }
+                            ]
+                        }
+                    },
+                    "overrides": [
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Status"
+                            },
+                            "properties": [
+                                {
+                                    "id": "thresholds",
+                                    "value": {
+                                        "mode": "absolute",
+                                        "steps": [
+                                            {
+                                                "color": "green",
+                                                "value": null
+                                            },
+                                            {
+                                                "color": "#EAB839",
+                                                "value": 0
+                                            },
+                                            {
+                                                "color": "semi-dark-green",
+                                                "value": 1
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "id": "mappings",
+                                    "value": [
+                                        {
+                                            "options": {
+                                                "0": {
+                                                    "index": 1,
+                                                    "text": "In progress"
+                                                },
+                                                "1": {
+                                                    "index": 0,
+                                                    "text": "Completed"
+                                                }
+                                            },
+                                            "type": "value"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "ETA"
+                            },
+                            "properties": [
+                                {
+                                    "id": "unit",
+                                    "value": "dateTimeAsIsoNoDateIfToday"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Speed"
+                            },
+                            "properties": [
+                                {
+                                    "id": "unit",
+                                    "value": "sec/i"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "gridPos": {
+                    "h": 2,
+                    "w": 10,
+                    "x": 0,
+                    "y": 0
+                },
+                "id": 4,
+                "options": {
+                    "colorMode": "value",
+                    "graphMode": "none",
+                    "justifyMode": "center",
+                    "orientation": "auto",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "/.*/",
+                        "values": false
+                    },
+                    "text": {},
+                    "textMode": "auto"
+                },
+                "pluginVersion": "8.4.5",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "table",
+                        "group": [],
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "select extract('seconds' from speed) as \"Speed\",\n       eta as \"ETA\",\n       processed_count as \"Processed\",\n       remaining_count as \"Remaining\",\n       status as \"Status\"\n  from history_stat\n order by id desc\n limit 1\n",
+                        "refId": "A",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "status"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "individual_run_sum_header",
+                        "timeColumn": "create_ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    }
+                ],
+                "type": "stat"
+            },
+            {
+                "description": "",
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "mode": "thresholds"
+                        },
+                        "mappings": [
+                            {
+                                "options": {
+                                    "0": {
+                                        "index": 1,
+                                        "text": "In progress"
+                                    },
+                                    "1": {
+                                        "index": 0,
+                                        "text": "Completed"
+                                    }
+                                },
+                                "type": "value"
+                            }
+                        ],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                },
+                                {
+                                    "color": "yellow",
+                                    "value": 0
+                                },
+                                {
+                                    "color": "green",
+                                    "value": 1
+                                }
+                            ]
+                        }
+                    },
+                    "overrides": []
+                },
+                "gridPos": {
+                    "h": 2,
+                    "w": 14,
+                    "x": 10,
+                    "y": 0
+                },
+                "id": 2,
+                "options": {
+                    "colorMode": "value",
+                    "graphMode": "none",
+                    "justifyMode": "center",
+                    "orientation": "auto",
+                    "reduceOptions": {
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "",
+                        "values": false
+                    },
+                    "textMode": "auto"
+                },
+                "pluginVersion": "8.4.5",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "time_series",
+                        "group": [],
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "with t as \n(\n    select min(status) as status\n      from run_sum_header\n     union \n    select min(status) as status\n      from history_stat\n)\nselect now() as \"time\",\n       min(status) as status\n  from t\n",
+                        "refId": "A",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "status"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "individual_run_sum_header",
+                        "timeColumn": "create_ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    }
+                ],
+                "title": "Running Sum  Report Status",
+                "type": "stat"
+            },
+            {
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {
+                            "fixedColor": "#FADE2A",
+                            "mode": "fixed"
+                        },
+                        "custom": {
+                            "align": "auto",
+                            "displayMode": "auto"
+                        },
+                        "links": [
+                            {
+                                "targetBlank": true,
+                                "title": "See this individual in details",
+                                "url": "/d/deals/deals?orgId=1\ufeff&${deal_time:queryparam}&\ufeff${currency:queryparam}\ufeff&\ufeff${deal_res_perc:queryparam}&var-version=\ufeff${__data.fields.version_id}\ufeff&var-individual=\ufeff${__data.fields.md5}\ufeff&\ufeff${__url_time_range}"
+                            }
+                        ],
+                        "mappings": [],
+                        "thresholds": {
+                            "mode": "absolute",
+                            "steps": [
+                                {
+                                    "color": "green",
+                                    "value": null
+                                },
+                                {
+                                    "color": "red",
+                                    "value": 80
+                                }
+                            ]
+                        },
+                        "unit": "none"
+                    },
+                    "overrides": [
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Min %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 61
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Max %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 62
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "+ deals %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 78
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "In %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 84
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Parent"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 200
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "#"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 33
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "currency_code"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 65
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "version_id"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 16
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "individual_id"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 11
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "md5"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 288
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Deals"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 53
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "none"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Avg %"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 78
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Month"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 78
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Quarter"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 77
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Test"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 68
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Week"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 69
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Members cnt"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 59
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Fall 20-23 Jan 2022"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 111
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Fall 3-5 Dec 2021"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 92
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Fall 5 Jan 2022"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 79
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "Rise 24-25 Jan 2022"
+                            },
+                            "properties": [
+                                {
+                                    "id": "custom.width",
+                                    "value": 114
+                                },
+                                {
+                                    "id": "unit",
+                                    "value": "percent"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "gridPos": {
+                    "h": 24,
+                    "w": 24,
+                    "x": 0,
+                    "y": 2
+                },
+                "id": 3,
+                "options": {
+                    "footer": {
+                        "fields": "",
+                        "reducer": [
+                            "sum"
+                        ],
+                        "show": false
+                    },
+                    "showHeader": true,
+                    "sortBy": []
+                },
+                "pluginVersion": "8.4.5",
+                "targets": [
+                    {
+                        "datasource": {
+                            "type": "postgres",
+                            "uid": "CFAffKf7k"
+                        },
+                        "format": "table",
+                        "group": [],
+                        "metricColumn": "none",
+                        "rawQuery": true,
+                        "rawSql": "with deals as\n(\n    select d.currency,\n           d.version,\n           d.individual as ind_id,\n           i.md5,\n           i.parent_md5,\n           d.id as deal_id,\n           --\n           row_number() over (partition by d.currency, d.version, d.individual order by d.buy_ts) as rn,\n           count(*) over (partition by d.currency, d.version, d.individual) as rc,\n           --\n           d.buy_ts,\n           d.buy_price,\n           --\n           case\n               -- if a deal is open at the end of the interval\n               -- we set sell_ts as the end of the interval\n               when d.sell_price is null then\n                   1\n               else\n                   0\n           end as is_sell_open,\n           case\n               -- if a deal is open at the end of the interval\n               -- we set sell_ts as the end of the interval\n               when d.sell_price is null then\n                   date_trunc('minute', $__timeTo()::timestamp)\n               else\n                   d.sell_ts\n           end as sell_ts,\n           case\n               -- if a deal is open at the end of the interval\n               -- we get the price for the end of the interval\n               when d.sell_price is null then\n                   (\n                       select close\n                         from price p\n                        where 1 = 1\n                          and p.currency = d.currency\n                          and p.ts = date_trunc('minute', $__timeTo()::timestamp)\n                   )\n               else\n                   d.sell_price\n           end as sell_price,\n           -- \n           d.run_usd,\n           d.run_crypto,\n           d.run_percent,\n           i.is_portfolio\n      from deal d,\n           individual i\n     where 1 = 1\n       and d.currency = '$currency'\n       and d.version = any(array[$version]::int[])\n       and d.individual = i.id\n       and i.md5 in ($individual)\n       and (d.buy_ts between $__timeFrom() and $__timeTo() or d.buy_ts < $__timeTo() and coalesce(d.sell_ts,$__timeTo()) between $__timeFrom() and $__timeTo())\n),\ndeals_res as\n(\n    select d.currency,\n           d.version,\n           d.ind_id,\n           d.md5,\n           d.parent_md5,\n           --\n           d.rn,\n           d.rc,\n           max(d.is_sell_open) over(partition by d.currency, d.version, d.ind_id) is_open_deals,\n           --\n           d.buy_ts,\n           d.buy_price,\n           --\n           d.is_sell_open,\n           d.sell_ts,\n           d.sell_price,\n           -- res\n           coalesce((d.sell_price*0.999 - d.buy_price*1.001), 0) as deal_res,\n           case\n             when extract(epoch from (d.sell_ts - d.buy_ts))/3600 < $deal_time/60 then\n                   least(coalesce((d.sell_price*0.999 - d.buy_price*1.001)/d.buy_price * 100, 0), $deal_res_perc)\n               else\n                   coalesce((d.sell_price*0.999 - d.buy_price*1.001)/d.buy_price * 100, 0)\n           end as deal_res_percent,\n           --\n           extract(epoch from (d.sell_ts - d.buy_ts))/3600  as in_hours,\n           extract(epoch from ($__timeTo()::timestamp - $__timeFrom()::timestamp))/3600 as total_hours,\n           --\n           case\n               when coalesce((d.sell_price*0.999 - d.buy_price*1.001), 0) > 0 then\n                  1\n               else\n                  0\n           end as is_pos_deal_res,\n           case\n               when coalesce((d.sell_price*0.999 - d.buy_price*1.001), 0) <= 0 then\n                  1\n               else\n                  0\n           end as is_neg_deal_res,\n           --\n           d.run_crypto,\n           d.run_usd,\n           d.run_percent,\n           d.is_portfolio\n      from deals d\n)\n,groupped as\n(\n    select dr.currency,\n           dr.version,\n           dr.ind_id,\n           dr.md5,\n           dr.parent_md5,\n           --\n           sum(dr.is_pos_deal_res)          as pos_deals_cnt,\n           sum(dr.is_neg_deal_res)          as neg_deals_cnt,\n           count(*)                         as deals_cnt,\n           --\n           sum(in_hours)                    as in_hours,\n           min(total_hours) - sum(in_hours) as out_hours,\n           min(total_hours)                 as total_hours,\n           --\n           min(dr.deal_res_percent)         as deal_min_perc,\n           avg(dr.deal_res_percent)         as deal_avg_perc,\n           max(dr.deal_res_percent)         as deal_max_perc,\n           --\n           max(\n               case\n                   when is_open_deals = 1 and dr.rn = dr.rc - 1 then\n                       dr.run_crypto\n                   when is_open_deals = 0 and dr.rn = dr.rc then\n                       dr.run_crypto\n                   else\n                       null\n               end\n           ) as run_crypto,\n           max(\n               case\n                   when is_open_deals = 1 and dr.rn = dr.rc - 1 then\n                       dr.run_usd\n                   when is_open_deals = 0 and dr.rn = dr.rc then\n                       dr.run_usd\n                   else\n                       null\n               end\n           ) as run_usd,\n           max(\n               case\n                   when is_open_deals = 1 and dr.rn = dr.rc - 1 then\n                       dr.run_percent\n                   when is_open_deals = 0 and dr.rn = dr.rc then\n                       dr.run_percent\n                   else\n                       null\n               end\n           ) as run_percent,\n           max(dr.is_portfolio) as is_portfolio,\n           max(case \n                 when coalesce(dr.is_portfolio,0) = 0 then\n                     1\n                 else\n                     (\n                        select count(*)\n                          from portfolio p\n                         where p.portfolio_md5 = dr.md5\n                     )\n             end) as members_cnt\n      from deals_res dr\n     where 1 = 1\n     group by dr.currency,\n           dr.version,\n           dr.ind_id,\n           dr.md5,\n           dr.parent_md5\n)\nselect row_number() over(order by \"$sort_by\" desc nulls last) as \"#\",\n       rsp.*,\n       --\n       g.deals_cnt   as \"Deals\",\n       g.pos_deals_cnt::float / g.deals_cnt * 100  as \"+ deals %\",\n       in_hours / total_hours * 100 as \"In %\",\n       -- out_hours / total_hours * 100 as \"Out %\",\n       --\n       g.deal_min_perc    as \"Min %\",\n       g.deal_avg_perc    as \"Avg %\",\n       g.deal_max_perc    as \"Max %\",\n       g.members_cnt      as \"Members cnt\",\n       g.parent_md5       as \"Parent\"\n  from groupped g\n  left join run_sum_pivoted rsp\n    on rsp.currency_code = g.currency\n   and rsp.version_id = g.version\n   and rsp.individual_id = g.ind_id\n where 1 = 1\n   and g.deal_min_perc >= $deal_min_perc\n   and g.deals_cnt >= $min_deals_cnt\n   and g.members_cnt = any(array[$members]::int[]) \n   -- pivot table filters\n   and coalesce(rsp.\"Week\", 0) >= $min_week\n   and coalesce(rsp.\"Month\", 0) >= $min_month\n   and coalesce(rsp.\"Quarter\", 0) >= $min_quarter\n   and coalesce(rsp.\"Test\", 0) >= $min_test\n limit $top",
+                        "refId": "A",
+                        "select": [
+                            [
+                                {
+                                    "params": [
+                                        "buy_price"
+                                    ],
+                                    "type": "column"
+                                }
+                            ]
+                        ],
+                        "table": "deal_2910",
+                        "timeColumn": "buy_ts",
+                        "timeColumnType": "timestamp",
+                        "where": [
+                            {
+                                "name": "$__timeFilter",
+                                "params": [],
+                                "type": "macro"
+                            }
+                        ]
+                    }
+                ],
+                "title": "Top individuals",
+                "type": "table"
+            }
+        ],
+        "refresh": "1m",
+        "schemaVersion": 35,
+        "style": "dark",
+        "tags": [
+            "crypto"
+        ],
+        "templating": {
+            "list": [
+                {
+                    "current": {
+                        "selected": false,
+                        "text": "btc",
+                        "value": "btc"
+                    },
+                    "definition": "select code __value from currency order by code",
+                    "description": "Crypto currency",
+                    "hide": 0,
+                    "includeAll": false,
+                    "label": "Currency",
+                    "multi": false,
+                    "name": "currency",
+                    "options": [],
+                    "query": "select code __value from currency order by code",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                },
+                {
+                    "current": {
+                        "selected": true,
+                        "text": [
+                            "All"
+                        ],
+                        "value": [
+                            "$__all"
+                        ]
+                    },
+                    "definition": "select id __value from version",
+                    "hide": 0,
+                    "includeAll": true,
+                    "label": "Version",
+                    "multi": true,
+                    "name": "version",
+                    "options": [],
+                    "query": "select id __value from version",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                },
+                {
+                    "current": {
+                        "selected": false,
+                        "text": "0",
+                        "value": "0"
+                    },
+                    "description": "If deal time less than this value than restrict profit with deal_res_perc value",
+                    "hide": 0,
+                    "includeAll": false,
+                    "label": "Time In Deal",
+                    "multi": false,
+                    "name": "deal_time",
+                    "options": [
+                        {
+                            "selected": true,
+                            "text": "0",
+                            "value": "0"
+                        },
+                        {
+                            "selected": false,
+                            "text": "5",
+                            "value": "5"
+                        },
+                        {
+                            "selected": false,
+                            "text": "10",
+                            "value": "10"
+                        },
+                        {
+                            "selected": false,
+                            "text": "15",
+                            "value": "15"
+                        },
+                        {
+                            "selected": false,
+                            "text": "20",
+                            "value": "20"
+                        },
+                        {
+                            "selected": false,
+                            "text": "25",
+                            "value": "25"
+                        },
+                        {
+                            "selected": false,
+                            "text": "30",
+                            "value": "30"
+                        }
+                    ],
+                    "query": "0, 5, 10, 15, 20, 25, 30",
+                    "queryValue": "",
+                    "skipUrlSync": false,
+                    "type": "custom"
+                },
+                {
+                    "current": {
+                        "selected": false,
+                        "text": "0",
+                        "value": "0"
+                    },
+                    "description": "Max percent restriction per deal, works in combination with deal_time parameter",
+                    "hide": 0,
+                    "includeAll": false,
+                    "label": "Deal %",
+                    "multi": false,
+                    "name": "deal_res_perc",
+                    "options": [
+                        {
+                            "selected": true,
+                            "text": "0",
+                            "value": "0"
+                        },
+                        {
+                            "selected": false,
+                            "text": "1",
+                            "value": "1"
+                        },
+                        {
+                            "selected": false,
+                            "text": "2",
+                            "value": "2"
+                        },
+                        {
+                            "selected": false,
+                            "text": "3",
+                            "value": "3"
+                        },
+                        {
+                            "selected": false,
+                            "text": "4",
+                            "value": "4"
+                        },
+                        {
+                            "selected": false,
+                            "text": "5",
+                            "value": "5"
+                        },
+                        {
+                            "selected": false,
+                            "text": "6",
+                            "value": "6"
+                        },
+                        {
+                            "selected": false,
+                            "text": "7",
+                            "value": "7"
+                        },
+                        {
+                            "selected": false,
+                            "text": "8",
+                            "value": "8"
+                        },
+                        {
+                            "selected": false,
+                            "text": "9",
+                            "value": "9"
+                        },
+                        {
+                            "selected": false,
+                            "text": "10",
+                            "value": "10"
+                        },
+                        {
+                            "selected": false,
+                            "text": "20",
+                            "value": "20"
+                        },
+                        {
+                            "selected": false,
+                            "text": "30",
+                            "value": "30"
+                        },
+                        {
+                            "selected": false,
+                            "text": "40",
+                            "value": "40"
+                        },
+                        {
+                            "selected": false,
+                            "text": "50",
+                            "value": "50"
+                        },
+                        {
+                            "selected": false,
+                            "text": "60",
+                            "value": "60"
+                        }
+                    ],
+                    "query": "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60",
+                    "queryValue": "",
+                    "skipUrlSync": false,
+                    "type": "custom"
+                },
+                {
+                    "current": {
+                        "selected": false,
+                        "text": "-100",
+                        "value": "-100"
+                    },
+                    "hide": 0,
+                    "includeAll": false,
+                    "label": "Deal Min %",
+                    "multi": false,
+                    "name": "deal_min_perc",
+                    "options": [
+                        {
+                            "selected": false,
+                            "text": "-1",
+                            "value": "-1"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-2",
+                            "value": "-2"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-3",
+                            "value": "-3"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-4",
+                            "value": "-4"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-5",
+                            "value": "-5"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-6",
+                            "value": "-6"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-7",
+                            "value": "-7"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-8",
+                            "value": "-8"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-9",
+                            "value": "-9"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-10",
+                            "value": "-10"
+                        },
+                        {
+                            "selected": true,
+                            "text": "-100",
+                            "value": "-100"
+                        }
+                    ],
+                    "query": "-1, -2, -3, -4, -5, -6, -7, -8, -9, -10,-100",
+                    "queryValue": "",
+                    "skipUrlSync": false,
+                    "type": "custom"
+                },
+                {
+                    "current": {
+                        "selected": false,
+                        "text": "5",
+                        "value": "5"
+                    },
+                    "description": "Min number of deals per week",
+                    "hide": 0,
+                    "includeAll": false,
+                    "label": "Min deals number",
+                    "multi": false,
+                    "name": "min_deals_cnt",
+                    "options": [
+                        {
+                            "selected": true,
+                            "text": "5",
+                            "value": "5"
+                        },
+                        {
+                            "selected": false,
+                            "text": "10",
+                            "value": "10"
+                        },
+                        {
+                            "selected": false,
+                            "text": "15",
+                            "value": "15"
+                        },
+                        {
+                            "selected": false,
+                            "text": "20",
+                            "value": "20"
+                        },
+                        {
+                            "selected": false,
+                            "text": "25",
+                            "value": "25"
+                        },
+                        {
+                            "selected": false,
+                            "text": "30",
+                            "value": "30"
+                        },
+                        {
+                            "selected": false,
+                            "text": "35",
+                            "value": "35"
+                        },
+                        {
+                            "selected": false,
+                            "text": "40",
+                            "value": "40"
+                        },
+                        {
+                            "selected": false,
+                            "text": "45",
+                            "value": "45"
+                        },
+                        {
+                            "selected": false,
+                            "text": "50",
+                            "value": "50"
+                        },
+                        {
+                            "selected": false,
+                            "text": "100",
+                            "value": "100"
+                        },
+                        {
+                            "selected": false,
+                            "text": "150",
+                            "value": "150"
+                        },
+                        {
+                            "selected": false,
+                            "text": "200",
+                            "value": "200"
+                        },
+                        {
+                            "selected": false,
+                            "text": "250",
+                            "value": "250"
+                        },
+                        {
+                            "selected": false,
+                            "text": "300",
+                            "value": "300"
+                        }
+                    ],
+                    "query": "5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 150, 200, 250, 300",
+                    "queryValue": "",
+                    "skipUrlSync": false,
+                    "type": "custom"
+                },
+                {
+                    "current": {
+                        "selected": false,
+                        "text": "Test",
+                        "value": "Test"
+                    },
+                    "description": "Sort grouped individuals by parameter",
+                    "hide": 0,
+                    "includeAll": false,
+                    "label": "Sort",
+                    "multi": false,
+                    "name": "sort_by",
+                    "options": [
+                        {
+                            "selected": true,
+                            "text": "Test",
+                            "value": "Test"
+                        },
+                        {
+                            "selected": false,
+                            "text": "Quarter",
+                            "value": "Quarter"
+                        },
+                        {
+                            "selected": false,
+                            "text": "Month",
+                            "value": "Month"
+                        },
+                        {
+                            "selected": false,
+                            "text": "Week",
+                            "value": "Week"
+                        },
+                        {
+                            "selected": false,
+                            "text": "avg_perc",
+                            "value": "avg_perc"
+                        },
+                        {
+                            "selected": false,
+                            "text": "min_perc",
+                            "value": "min_perc"
+                        },
+                        {
+                            "selected": false,
+                            "text": "max_perc",
+                            "value": "max_perc"
+                        },
+                        {
+                            "selected": false,
+                            "text": "deals_cnt",
+                            "value": "deals_cnt"
+                        },
+                        {
+                            "selected": false,
+                            "text": "pos_deals_cnt / g.deals_cnt * 100",
+                            "value": "pos_deals_cnt / g.deals_cnt * 100"
+                        }
+                    ],
+                    "query": "Test, Quarter, Month, Week, avg_perc, min_perc, max_perc, deals_cnt,  pos_deals_cnt / g.deals_cnt * 100",
+                    "queryValue": "",
+                    "skipUrlSync": false,
+                    "type": "custom"
+                },
+                {
+                    "current": {
+                        "selected": false,
+                        "text": "200",
+                        "value": "200"
+                    },
+                    "description": "Display top n individuals sorted by sort_bt parameter",
+                    "hide": 0,
+                    "includeAll": false,
+                    "label": "Top",
+                    "multi": false,
+                    "name": "top",
+                    "options": [
+                        {
+                            "selected": false,
+                            "text": "1",
+                            "value": "1"
+                        },
+                        {
+                            "selected": false,
+                            "text": "2",
+                            "value": "2"
+                        },
+                        {
+                            "selected": false,
+                            "text": "5",
+                            "value": "5"
+                        },
+                        {
+                            "selected": false,
+                            "text": "10",
+                            "value": "10"
+                        },
+                        {
+                            "selected": false,
+                            "text": "20",
+                            "value": "20"
+                        },
+                        {
+                            "selected": false,
+                            "text": "30",
+                            "value": "30"
+                        },
+                        {
+                            "selected": false,
+                            "text": "40",
+                            "value": "40"
+                        },
+                        {
+                            "selected": false,
+                            "text": "50",
+                            "value": "50"
+                        },
+                        {
+                            "selected": false,
+                            "text": "70",
+                            "value": "70"
+                        },
+                        {
+                            "selected": false,
+                            "text": "100",
+                            "value": "100"
+                        },
+                        {
+                            "selected": false,
+                            "text": "150",
+                            "value": "150"
+                        },
+                        {
+                            "selected": true,
+                            "text": "200",
+                            "value": "200"
+                        },
+                        {
+                            "selected": false,
+                            "text": "250",
+                            "value": "250"
+                        },
+                        {
+                            "selected": false,
+                            "text": "300",
+                            "value": "300"
+                        }
+                    ],
+                    "query": "1, 2, 5, 10, 20, 30, 40, 50, 70, 100, 150, 200, 250, 300",
+                    "queryValue": "",
+                    "skipUrlSync": false,
+                    "type": "custom"
+                },
+                {
+                    "current": {
+                        "selected": true,
+                        "text": [
+                            "All"
+                        ],
+                        "value": [
+                            "$__all"
+                        ]
+                    },
+                    "definition": "select md5 __value from individual",
+                    "hide": 0,
+                    "includeAll": true,
+                    "label": "Individual",
+                    "multi": true,
+                    "name": "individual",
+                    "options": [],
+                    "query": "select md5 __value from individual",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                },
+                {
+                    "current": {
+                        "selected": true,
+                        "text": [
+                            "All"
+                        ],
+                        "value": [
+                            "$__all"
+                        ]
+                    },
+                    "definition": "select distinct cnt __value\n  from (\n            select 1 as cnt\n            union\n            select count(*) as cnt\n              from portfolio p\n             group by p.portfolio_md5\n       ) q\n order by cnt",
+                    "hide": 0,
+                    "includeAll": true,
+                    "label": "Portfolio Members",
+                    "multi": true,
+                    "name": "members",
+                    "options": [],
+                    "query": "select distinct cnt __value\n  from (\n            select 1 as cnt\n            union\n            select count(*) as cnt\n              from portfolio p\n             group by p.portfolio_md5\n       ) q\n order by cnt",
+                    "refresh": 1,
+                    "regex": "",
+                    "skipUrlSync": false,
+                    "sort": 0,
+                    "type": "query"
+                },
+                {
+                    "current": {
+                        "selected": true,
+                        "text": "-30",
+                        "value": "-30"
+                    },
+                    "description": "Min running % on the week interval",
+                    "hide": 0,
+                    "includeAll": false,
+                    "label": "Min Week %",
+                    "multi": false,
+                    "name": "min_week",
+                    "options": [
+                        {
+                            "selected": true,
+                            "text": "-30",
+                            "value": "-30"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-20",
+                            "value": "-20"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-10",
+                            "value": "-10"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-5",
+                            "value": "-5"
+                        },
+                        {
+                            "selected": false,
+                            "text": "0",
+                            "value": "0"
+                        },
+                        {
+                            "selected": false,
+                            "text": "2",
+                            "value": "2"
+                        },
+                        {
+                            "selected": false,
+                            "text": "4",
+                            "value": "4"
+                        },
+                        {
+                            "selected": false,
+                            "text": "6",
+                            "value": "6"
+                        },
+                        {
+                            "selected": false,
+                            "text": "8",
+                            "value": "8"
+                        },
+                        {
+                            "selected": false,
+                            "text": "10",
+                            "value": "10"
+                        },
+                        {
+                            "selected": false,
+                            "text": "12",
+                            "value": "12"
+                        },
+                        {
+                            "selected": false,
+                            "text": "15",
+                            "value": "15"
+                        },
+                        {
+                            "selected": false,
+                            "text": "20",
+                            "value": "20"
+                        },
+                        {
+                            "selected": false,
+                            "text": "30",
+                            "value": "30"
+                        }
+                    ],
+                    "query": "-30,-20,-10,-5,0,2,4,6,8,10,12,15,20,30",
+                    "queryValue": "",
+                    "skipUrlSync": false,
+                    "type": "custom"
+                },
+                {
+                    "current": {
+                        "selected": true,
+                        "text": "-50",
+                        "value": "-50"
+                    },
+                    "description": "Min running % on the month interval",
+                    "hide": 0,
+                    "includeAll": false,
+                    "label": "Min Month %",
+                    "multi": false,
+                    "name": "min_month",
+                    "options": [
+                        {
+                            "selected": true,
+                            "text": "-50",
+                            "value": "-50"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-40",
+                            "value": "-40"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-30",
+                            "value": "-30"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-20",
+                            "value": "-20"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-10",
+                            "value": "-10"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-5",
+                            "value": "-5"
+                        },
+                        {
+                            "selected": false,
+                            "text": "0",
+                            "value": "0"
+                        },
+                        {
+                            "selected": false,
+                            "text": "5",
+                            "value": "5"
+                        },
+                        {
+                            "selected": false,
+                            "text": "10",
+                            "value": "10"
+                        },
+                        {
+                            "selected": false,
+                            "text": "15",
+                            "value": "15"
+                        },
+                        {
+                            "selected": false,
+                            "text": "20",
+                            "value": "20"
+                        },
+                        {
+                            "selected": false,
+                            "text": "25",
+                            "value": "25"
+                        },
+                        {
+                            "selected": false,
+                            "text": "30",
+                            "value": "30"
+                        },
+                        {
+                            "selected": false,
+                            "text": "35",
+                            "value": "35"
+                        },
+                        {
+                            "selected": false,
+                            "text": "40",
+                            "value": "40"
+                        },
+                        {
+                            "selected": false,
+                            "text": "45",
+                            "value": "45"
+                        },
+                        {
+                            "selected": false,
+                            "text": "50",
+                            "value": "50"
+                        }
+                    ],
+                    "query": "-50,-40,-30,-20,-10,-5,0,5,10,15,20,25,30,35,40,45,50",
+                    "queryValue": "",
+                    "skipUrlSync": false,
+                    "type": "custom"
+                },
+                {
+                    "current": {
+                        "selected": false,
+                        "text": "0",
+                        "value": "0"
+                    },
+                    "description": "Min running % on the quarter interval",
+                    "hide": 0,
+                    "includeAll": false,
+                    "label": "Min Quarter %",
+                    "multi": false,
+                    "name": "min_quarter",
+                    "options": [
+                        {
+                            "selected": false,
+                            "text": "-100",
+                            "value": "-100"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-70",
+                            "value": "-70"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-50",
+                            "value": "-50"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-30",
+                            "value": "-30"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-10",
+                            "value": "-10"
+                        },
+                        {
+                            "selected": true,
+                            "text": "0",
+                            "value": "0"
+                        },
+                        {
+                            "selected": false,
+                            "text": "10",
+                            "value": "10"
+                        },
+                        {
+                            "selected": false,
+                            "text": "20",
+                            "value": "20"
+                        },
+                        {
+                            "selected": false,
+                            "text": "30",
+                            "value": "30"
+                        },
+                        {
+                            "selected": false,
+                            "text": "40",
+                            "value": "40"
+                        },
+                        {
+                            "selected": false,
+                            "text": "50",
+                            "value": "50"
+                        },
+                        {
+                            "selected": false,
+                            "text": "60",
+                            "value": "60"
+                        },
+                        {
+                            "selected": false,
+                            "text": "70",
+                            "value": "70"
+                        },
+                        {
+                            "selected": false,
+                            "text": "80",
+                            "value": "80"
+                        },
+                        {
+                            "selected": false,
+                            "text": "90",
+                            "value": "90"
+                        },
+                        {
+                            "selected": false,
+                            "text": "100",
+                            "value": "100"
+                        }
+                    ],
+                    "query": "-100,-70,-50,-30,-10,0,10,20,30,40,50,60,70,80,90,100",
+                    "queryValue": "",
+                    "skipUrlSync": false,
+                    "type": "custom"
+                },
+                {
+                    "current": {
+                        "selected": true,
+                        "text": "0",
+                        "value": "0"
+                    },
+                    "description": "Min running % on the test interval",
+                    "hide": 0,
+                    "includeAll": false,
+                    "label": "Min Test %",
+                    "multi": false,
+                    "name": "min_test",
+                    "options": [
+                        {
+                            "selected": false,
+                            "text": "-500",
+                            "value": "-500"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-400",
+                            "value": "-400"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-300",
+                            "value": "-300"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-200",
+                            "value": "-200"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-100",
+                            "value": "-100"
+                        },
+                        {
+                            "selected": false,
+                            "text": "-50",
+                            "value": "-50"
+                        },
+                        {
+                            "selected": true,
+                            "text": "0",
+                            "value": "0"
+                        },
+                        {
+                            "selected": false,
+                            "text": "50",
+                            "value": "50"
+                        },
+                        {
+                            "selected": false,
+                            "text": "60",
+                            "value": "60"
+                        },
+                        {
+                            "selected": false,
+                            "text": "70",
+                            "value": "70"
+                        },
+                        {
+                            "selected": false,
+                            "text": "80",
+                            "value": "80"
+                        },
+                        {
+                            "selected": false,
+                            "text": "90",
+                            "value": "90"
+                        },
+                        {
+                            "selected": false,
+                            "text": "100",
+                            "value": "100"
+                        },
+                        {
+                            "selected": false,
+                            "text": "120",
+                            "value": "120"
+                        },
+                        {
+                            "selected": false,
+                            "text": "150",
+                            "value": "150"
+                        },
+                        {
+                            "selected": false,
+                            "text": "200",
+                            "value": "200"
+                        },
+                        {
+                            "selected": false,
+                            "text": "250",
+                            "value": "250"
+                        },
+                        {
+                            "selected": false,
+                            "text": "300",
+                            "value": "300"
+                        },
+                        {
+                            "selected": false,
+                            "text": "350",
+                            "value": "350"
+                        },
+                        {
+                            "selected": false,
+                            "text": "400",
+                            "value": "400"
+                        },
+                        {
+                            "selected": false,
+                            "text": "450",
+                            "value": "450"
+                        },
+                        {
+                            "selected": false,
+                            "text": "500",
+                            "value": "500"
+                        }
+                    ],
+                    "query": "-500,-400,-300,-200,-100,-50,0,50,60,70,80,90,100,120,150,200,250,300,350,400,450,500",
+                    "queryValue": "",
+                    "skipUrlSync": false,
+                    "type": "custom"
+                }
+            ]
+        },
+        "time": {
+            "from": "2021-11-01T00:00:00.000Z",
+            "to": "now"
+        },
+        "timepicker": {},
+        "timezone": "",
+        "title": "Top",
+        "uid": "top",
+        "version": 87,
+        "weekStart": ""
+    }
+}

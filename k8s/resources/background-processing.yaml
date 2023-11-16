@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: background-processing
+spec:
+  schedule: "*/10 * * * *"
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      parallelism: 1
+      template:
+        metadata:
+          labels:
+            app: background-processing
+        spec:
+          restartPolicy: OnFailure
+          initContainers:
+            - name: clean-payloads
+              image: postgres
+              command:
+                - psql
+                - --host
+                - $(POSTGRES_HOST)
+                - --dbname
+                - $(POSTGRES_DB)
+                - -U
+                - postgres
+                - -tc
+                - delete from payload where now() - create_ts > '1 hour';
+              envFrom:
+              - secretRef:
+                  name: env
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: env
+                      key: POSTGRES_PASSWORD
+            - name: process-portfolios
+              image: docker.clrn.dev/crypto-ml:latest
+              args: ["/src/jobs/process_portfolio.py"]
+              envFrom:
+                - secretRef:
+                    name: env
+            - name: rotate-portfolios
+              image: docker.clrn.dev/crypto-ml:latest
+              args: ["/src/jobs/rotate_portfolio.py"]
+              envFrom:
+                - secretRef:
+                    name: env
+          containers:
+            - name: running-sum
+              image: docker.clrn.dev/crypto-ml:latest
+              args: ["/src/jobs/running_sum.py"]
+              envFrom:
+              - secretRef:
+                  name: env
+          imagePullSecrets:
+            - name: regcred

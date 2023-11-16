@@ -1,0 +1,9 @@
+ARG BASE=python:3.9
+FROM ${BASE}
+
+RUN python --version
+RUN pip --version
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+RUN pip install pytest-cov pytest-asyncio flake8 coverage asynctest

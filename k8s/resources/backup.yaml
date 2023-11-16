@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-token
+type: Opaque
+stringData:
+  GRAFANA_TOKEN: eyJrIjoiUW41Rm1wd1FGRGNIdjduSzBmVFAyNXJQd1ZrOFJRcVEiLCJuIjoiYWRtaW4iLCJpZCI6MX0=
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup
+spec:
+  schedule: "0 1 * * *"
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      parallelism: 1
+      template:
+        metadata:
+          labels:
+            app: backup
+        spec:
+          volumes:
+            - name: data
+              emptyDir: {}
+          restartPolicy: OnFailure
+          initContainers:
+            - name: grafana-dump
+              image: docker.clrn.dev/crypto-ml:latest
+              args: ["/src/jobs/grafana_backup.py", "/upload/grafana"]
+              envFrom:
+                - secretRef:
+                    name: grafana-token
+              volumeMounts:
+                - mountPath: /upload
+                  name: data
+            - name: db-dump
+              image: postgres
+              command:
+                - bash
+                - -c
+                - 'mkdir /upload/db && pg_dump --host $(POSTGRES_HOST) -U postgres --dbname $(POSTGRES_DB) -T public.prediction | gzip -9 > /upload/db/dump_$(date +"%Y-%m-%d").sql.gz'
+              envFrom:
+                - secretRef:
+                    name: env
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: env
+                      key: POSTGRES_PASSWORD
+              volumeMounts:
+                - mountPath: /upload
+                  name: data
+          containers:
+            - name: upload
+              image: docker.clrn.dev/crypto-ml:latest
+              command:
+                - bash
+                - -c
+                - 's3cmd --host https://storage.googleapis.com --host-bucket "" put --recursive /upload/* s3://clrn-data/backups/'
+              envFrom:
+              - secretRef:
+                  name: env
+              volumeMounts:
+                - mountPath: /upload
+                  name: data
+          imagePullSecrets:
+            - name: regcred

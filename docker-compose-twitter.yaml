@@ -1,0 +1,31 @@
+version: '3.1'
+services:
+  tweet-accounts-crawler:
+    image: clrn/ml:latest
+    restart: always
+    command: ["python", "crawlers/twitter_accounts.py"]
+  bitcoin-crawler:
+    image: clrn/ml:latest
+    restart: always
+    command: ["python", "crawlers/bitcoin.py"]
+  tweet-crawler:
+    image: clrn/ml:latest
+    build:
+      context: .
+    restart: always
+    command: ["python", "crawlers/tweets.py"]
+    depends_on:
+      - tweet-accounts-crawler
+      - bitcoin-crawler
+  bot:
+    image: clrn/ml:latest
+    restart: always
+    command: ["python", "bots/classifier.py"]
+  dataset-builder:
+    image: clrn/ml:latest
+    restart: always
+    command: ["python", "processors/dataset.py"]
+  notifier:
+    image: clrn/ml:latest
+    restart: always
+    command: ["python", "bots/notifier.py"]

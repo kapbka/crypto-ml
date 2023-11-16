@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: docker-cleanup
+spec:
+  selector:
+    matchLabels:
+      app: docker-cleanup
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 10%
+  template:
+    metadata:
+      labels:
+        app: docker-cleanup
+    spec:
+      volumes:
+        - name: dockersocket
+          hostPath:
+            path: /var/run/docker.sock
+      containers:
+      - name: docker-images-cleanup
+        image: docker:latest
+        imagePullPolicy: Always
+        command:
+          - /bin/sh
+          - -c
+          - |
+            set -ex
+            while true; do
+              # Remove exited containers
+              (docker ps -a -q -f status=exited  | xargs --no-run-if-empty docker rm -v) || true
+              # Remove dangling images
+              (docker images -f "dangling=true" -q | xargs --no-run-if-empty docker rmi) || true
+              # Remove dangling volumes
+              (docker volume ls -qf dangling=true  | xargs --no-run-if-empty docker volume rm) || true
+              # Clean everything else including all images not attached to containers
+              (docker system prune -a -f --volumes) || true
+
+              sleep 86400
+            done
+        volumeMounts:
+          - name: dockersocket
+            mountPath: /var/run/docker.sock

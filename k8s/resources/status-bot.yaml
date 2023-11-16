@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: status-bot
+  labels:
+    app: status-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: status-bot
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: status-bot
+        app: status-bot
+    spec:
+      initContainers:
+      - name: waiter
+        image: docker.clrn.dev/waiter:latest
+        args: ["postgres"]
+      containers:
+      - image: docker.clrn.dev/crypto-ml:latest
+        imagePullPolicy: Always
+        name: worker
+        args: ["/src/bots/status.py"]
+        envFrom:
+          - secretRef:
+              name: env
+        resources:
+          requests:
+            memory: "100M"
+        readinessProbe:
+          exec:
+            command: ["ls", "/tmp/ready"]
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 10
+      imagePullSecrets:
+        - name: regcred
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always

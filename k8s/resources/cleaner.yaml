@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cleaner
+  namespace: kube-system
+spec:
+  schedule: "0 0 * * *"
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      parallelism: 1
+      template:
+        metadata:
+          labels:
+            app: cleaner
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: cleaner
+              image: docker.clrn.dev/crypto-ml:latest
+              args: ["/src/common/k8s/clean.py"]
+          imagePullSecrets:
+            - name: regcred
