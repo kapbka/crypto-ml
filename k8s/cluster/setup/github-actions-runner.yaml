@@ -5,7 +5,7 @@ metadata:
 spec:
   template:
     spec:
-      organization: clrn-corp
+      organization: kapbka
 ---
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: HorizontalRunnerAutoscaler

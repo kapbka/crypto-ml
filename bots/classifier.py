@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 from functools import partial
 
@@ -84,7 +85,7 @@ def main():
     connect()
 
     # Create the Updater and pass it your bot's token.
-    updater = Updater("1622427122:AAHcCdb1YiplWn4DCqTBJLT_PKEjv2zRDHw")
+    updater = Updater(os.getenv('BOT_TOKEN'))
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher

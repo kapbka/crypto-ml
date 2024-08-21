@@ -1,4 +1,4 @@
-create user crypto_view with password 'F&qbW)=`d3h>8@)r';
+create user crypto_view;
 grant connect on database DB_NAME to crypto_view;
 alter role crypto_view in database DB_NAME set search_path = public;
 -- tables
