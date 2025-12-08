@@ -33,7 +33,7 @@ jobs:
       env:
         KUBECONFIG : ${{secrets.KUBECONFIG}}
     - name: Kubectl install
-      uses: Azure/setup-kubectl@v2.0
+      uses: Azure/setup-kubectl@v3.0
     - name: Kustomize install
       run: |
         curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
